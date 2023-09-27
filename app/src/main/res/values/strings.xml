@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">head and hands test case</string>
+    <string name="Attack">Атака</string>
+    <string name="Healing">Исцеление</string>
+</resources>
