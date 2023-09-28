@@ -11,6 +11,9 @@ open class Creature(
     var health: Int = 0,              // Здоровье
     private val damageRange: IntRange = 0..0,  // Диапазон урона
 ) {
+    // Свойство для хранения результатов бросков кубика
+    private var diceRolls: List<Int> = emptyList()
+
     // Проверка на живучесть существа
     fun isAlive(): Boolean {
         return health > 0
@@ -34,31 +37,32 @@ open class Creature(
         }
     }
 
-    // Расчет модификатора атаки при атаке другого существа
-    private fun calculateModifier(target: Creature): Int {
-        return maxOf(1, attack - target.defense + 1)
-    }
 
-    // Атака другого существа
     fun attackTarget(target: Creature): Boolean {
-        val modifier = calculateModifier(target)
+        val modifier = calculateModifier(target) // Рассчитываем модификатор атаки
 
-        // Бросаем N кубиков для атаки игрока и монстра
-        val playerDiceRolls = List(modifier) { Random.nextInt(1, 7) }
-        val monsterDiceRolls = List(modifier) { Random.nextInt(1, 7) }
+        val playerDiceRoll = Random.nextInt(1, 7) // Бросок кубика для игрока
 
-        // Определяем успешность удара для игрока и монстра
-        val playerAttackSuccessful = 5 in playerDiceRolls || 6 in playerDiceRolls
-        val monsterAttackSuccessful = 5 in monsterDiceRolls || 6 in monsterDiceRolls
+        val playerAttackSuccessful = playerDiceRoll >= modifier // Сравниваем с модификатором
 
         if (playerAttackSuccessful) {
             val damage = Random.nextInt(damageRange)
             target.takeDamage(damage)
         }
 
+        diceRolls = listOf(playerDiceRoll)
+
         return playerAttackSuccessful
     }
+    private fun calculateModifier(target: Creature): Int {
+        val modifier = attack - target.defense + 1
+        return maxOf(1, modifier)
+    }
 
+    // Получить результаты броска кубика
+    fun getDiceRolls(): List<Int> {
+        return diceRolls
+    }
 }
 
 

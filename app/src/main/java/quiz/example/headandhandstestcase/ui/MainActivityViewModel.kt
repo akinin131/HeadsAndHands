@@ -30,15 +30,15 @@ class MainActivityViewModel : ViewModel() {
         val monsterAttackSuccessful = monster.isAlive() && monster.attackTarget(player)
 
         val playerAttackMessage = if (playerAttackSuccessful) {
-            "${player.name} атакует ${monster.name} и наносит урон."
+            "${player.name} атакует ${monster.name} и наносит урон с броском кубика ${player.getDiceRolls()}"
         } else {
-            "${player.name} атакует ${monster.name}, но промахивается."
+            "${player.name} атакует ${monster.name}, но промахивается с броском кубика ${player.getDiceRolls()}"
         }
 
         val monsterAttackMessage = if (monsterAttackSuccessful) {
-            "${monster.name} атакует ${player.name} и наносит урон."
+            "${monster.name} атакует ${player.name} и наносит урон с броском кубика ${monster.getDiceRolls()}"
         } else {
-            "${monster.name} атакует ${player.name}, но промахивается."
+            "${monster.name} атакует ${player.name}, но промахивается с броском кубика ${monster.getDiceRolls()}"
         }
 
         _uiState.value = _uiState.value?.copy(
