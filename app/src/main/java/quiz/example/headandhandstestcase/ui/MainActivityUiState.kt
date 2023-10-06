@@ -5,8 +5,9 @@ data class MainActivityUiState(
     val playerHealth: Int,
     val monsterName: String,
     val monsterHealth: Int,
-    val gameLog: String,
     val attackButtonEnabled: Boolean,
     val healButtonEnabled: Boolean,
     val gameOver: Boolean,
+    val playerAttackMessage: String,
+    val monsterAttackMessage: String
 )

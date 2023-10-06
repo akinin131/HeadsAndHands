@@ -2,4 +2,14 @@
     <string name="app_name">head and hands test case</string>
     <string name="Attack">Атака</string>
     <string name="Healing">Исцеление</string>
+    <string name="restart">Начать заново</string>
+    <string name="player">Player</string>
+    <string name="monster">Monster</string>
+    <string name="you_lose">Вы проиграли!</string>
+    <string name="you_win">Вы выиграли!</string>
+
+    <string name="attack_successful">Атакует %1$s и наносит урон с броском кубика: %2$s</string>
+    <string name="attack_failed">Попытка атаковать %1$s завершилась неудачей с броском кубика: %2$s</string>
+
+    <string name="heal_limit_reached">Вы можете только 4 раза исцелиться</string>
 </resources>

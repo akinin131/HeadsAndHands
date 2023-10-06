@@ -1,27 +1,33 @@
 package quiz.example.headandhandstestcase.ui
 
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import quiz.example.headandhandstestcase.R
 import quiz.example.headandhandstestcase.domain.Monster
 import quiz.example.headandhandstestcase.domain.Player
 
-class MainActivityViewModel : ViewModel() {
+class MainActivityViewModel(private val context: Application) : AndroidViewModel(context) {
 
     private val _uiState = MutableLiveData<MainActivityUiState>()
     val uiState: LiveData<MainActivityUiState>
         get() = _uiState
 
+    private val _toastMessage = MutableLiveData<String>()
+    val toastMessage: LiveData<String>
+        get() = _toastMessage
+
     private var playerHealCount = 0
-    private val maxPlayerHealCount = 4
+    private var maxPlayerHealCount = 4
 
     private lateinit var player: Player
     private lateinit var monster: Monster
 
-    fun initializeGame(playerName: String, monsterName: String) {
-        player = Player(playerName, 20, 15, 100, 1..6)
-        monster = Monster(monsterName, 20, 15, 120, 2..8)
-
+    fun startNewGame(playerName: String, monsterName: String) {
+        player = Player(playerName, 20, 18, 100, 1..6)
+        monster = Monster(monsterName, 20, 18, 100, 3..8)
         updateUiState()
     }
 
@@ -29,36 +35,50 @@ class MainActivityViewModel : ViewModel() {
         val playerAttackSuccessful = player.attackTarget(monster)
         val monsterAttackSuccessful = monster.isAlive() && monster.attackTarget(player)
 
+        val playerDiceRolls = player.getDiceRolls().joinToString(", ")
+
         val playerAttackMessage = if (playerAttackSuccessful) {
-            "${player.name} атакует ${monster.name} и наносит урон с броском кубика ${player.getDiceRolls()}"
+            context.getString(R.string.attack_successful, monster.name, playerDiceRolls)
         } else {
-            "${player.name} атакует ${monster.name}, но промахивается с броском кубика ${player.getDiceRolls()}"
+            context.getString(R.string.attack_failed, monster.name, playerDiceRolls)
         }
 
         val monsterAttackMessage = if (monsterAttackSuccessful) {
-            "${monster.name} атакует ${player.name} и наносит урон с броском кубика ${monster.getDiceRolls()}"
+            context.getString(
+                R.string.attack_successful,
+                player.name,
+                monster.getDiceRolls().joinToString(", ")
+            )
         } else {
-            "${monster.name} атакует ${player.name}, но промахивается с броском кубика ${monster.getDiceRolls()}"
+            context.getString(
+                R.string.attack_failed,
+                player.name,
+                monster.getDiceRolls().joinToString(", ")
+            )
         }
 
-        _uiState.value = _uiState.value?.copy(
-            gameLog = "$playerAttackMessage\n$monsterAttackMessage"
+        _uiState.value = MainActivityUiState(
+            player.name,
+            player.health,
+            monster.name,
+            monster.health,
+            attackButtonEnabled = player.isAlive() && monster.isAlive(),
+            healButtonEnabled = player.isAlive() && monster.isAlive(),
+            gameOver = !player.isAlive() || !monster.isAlive(),
+            playerAttackMessage = playerAttackMessage,
+            monsterAttackMessage = monsterAttackMessage
         )
-
-        updateUiState()
     }
 
     fun healPlayer() {
         if (playerHealCount < maxPlayerHealCount) {
-            player.healSelf()
-            playerHealCount++
-            _uiState.value = _uiState.value?.copy(
-                gameLog = "${player.name} исцеляется и его здоровье становится ${player.health}."
-            )
-            updateUiState()
+            if (player.health < 100) {
+                player.healSelf()
+                playerHealCount++
+                updateUiState()
+            }
         } else {
-            // Добавьте логику, чтобы обработать случай, когда игрок не может больше исцеляться
-            // Например, вы можете вывести сообщение, что исцеления больше не доступны.
+            _toastMessage.value = context.getString(R.string.heal_limit_reached)
         }
     }
 
@@ -68,10 +88,18 @@ class MainActivityViewModel : ViewModel() {
             player.health,
             monster.name,
             monster.health,
-            _uiState.value?.gameLog ?: "",
             attackButtonEnabled = player.isAlive() && monster.isAlive(),
             healButtonEnabled = player.isAlive() && monster.isAlive(),
-            gameOver = !player.isAlive() || !monster.isAlive()
+            gameOver = !player.isAlive() || !monster.isAlive(),
+            playerAttackMessage = "",
+            monsterAttackMessage = ""
         )
     }
+
+    fun restartGame() {
+        startNewGame(context.getString(R.string.player), context.getString(R.string.monster))
+        playerHealCount = 0
+        _toastMessage.value = null
+    }
+
 }

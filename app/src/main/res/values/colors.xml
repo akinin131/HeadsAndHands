@@ -8,4 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#3DFB07</color>
+    <color name="progressBarColorPlayer">#2BAF05</color>
+    <color name="progressBarColorMonster">#D30535</color>
+
 </resources>

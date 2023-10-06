@@ -1,25 +1,23 @@
 package quiz.example.headandhandstestcase.domain
 
+import kotlin.math.min
 import kotlin.random.nextInt
 import kotlin.random.Random
 
-// Базовый класс для всех существ (Игрок и Монстр)
 open class Creature(
-    val name: String,        // Имя существа
-    private val attack: Int = 0,        // Параметр атаки
-    private val defense: Int = 0,      // Параметр защиты
-    var health: Int = 0,              // Здоровье
-    private val damageRange: IntRange = 0..0,  // Диапазон урона
+    val name: String,
+    private val attack: Int = 0,
+    private val defense: Int = 0,
+    var health: Int = 0,
+    private val damageRange: IntRange = 0..0,
 ) {
-    // Свойство для хранения результатов бросков кубика
+
     private var diceRolls: List<Int> = emptyList()
 
-    // Проверка на живучесть существа
     fun isAlive(): Boolean {
         return health > 0
     }
 
-    // Подсчет урона и вычитание его из здоровья
     private fun takeDamage(damage: Int) {
         health -= damage
         if (health < 0) {
@@ -27,40 +25,32 @@ open class Creature(
         }
     }
 
-    // Исцеление существа
     fun heal() {
-        val maxHeal = (health * 0.3).toInt()   // Максимальное исцеление (30% от текущего здоровья)
-        val healAmount = Random.nextInt(1, maxHeal + 1) // Случайное количество исцеления
-        health += healAmount
-        if (health > 100) {
-            health = 100  // Здоровье не может превышать 100
+        if (health < 100) {
+            val maxHeal = (health * 0.3).toInt()
+            val healAmount = min(maxHeal, 100 - health)
+            health += healAmount
         }
     }
 
-
     fun attackTarget(target: Creature): Boolean {
-        val modifier = calculateModifier(target) // Рассчитываем модификатор атаки
 
-        val playerDiceRoll = Random.nextInt(1, 7) // Бросок кубика для игрока
-
-        val playerAttackSuccessful = playerDiceRoll >= modifier // Сравниваем с модификатором
+        val modifier = attack - target.defense + 1
+        val diceRolls = List(modifier) { Random.nextInt(1, 7) }
+        val playerAttackSuccessful = diceRolls.any { it >= 5 }
 
         if (playerAttackSuccessful) {
+
             val damage = Random.nextInt(damageRange)
             target.takeDamage(damage)
         }
 
-        diceRolls = listOf(playerDiceRoll)
-
+        this.diceRolls = diceRolls
         return playerAttackSuccessful
     }
-    private fun calculateModifier(target: Creature): Int {
-        val modifier = attack - target.defense + 1
-        return maxOf(1, modifier)
-    }
 
-    // Получить результаты броска кубика
     fun getDiceRolls(): List<Int> {
+
         return diceRolls
     }
 }
